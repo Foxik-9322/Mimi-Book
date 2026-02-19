@@ -5,17 +5,25 @@
 
 * {
 	font-family: var(--font-main) !important;
+	forced-color-adjust: none !important;
+	-webkit-text-size-adjust: none;
 }
 
 :root {
-	color-scheme: light !important;
+	color-scheme: light only !important;
 	--book-w: 350px;
 	--book-h: 490px;
 	--cover-color: #1e3a5f;
-	--page-color: #fffbf0 !important;
+	/*--page-color: #fffbf0 !important;*/
+	--page-color: linear-gradient(0deg, #fffbf0, #fdfae0) !important;
 	--anim-speed: 1s;
 	--cover-thickness: 10px;
 	--font-main: 'Vag-Round-Cyrillic', serif;
+}
+
+html, body {
+	background-color: #1a1a2e !important; /* Ваш цвет фона из стилей */
+	filter: none !important;
 }
 
 body {
@@ -480,6 +488,7 @@ button:focus-visible {
 	box-shadow: inset 5px 0 10px rgba(0,0,0,0.1);
 	border-radius: 0 10px 10px 0;
 	background: var(--page-color) !important;
+	forced-color-adjust: none !important;
 }
 
 .sheet-face.front {
@@ -889,4 +898,9 @@ button:focus-visible {
 .copyright:hover {
 	color: #d4af37;
 	text-shadow: 0 0 10px #d4af37;
+}
+
+.particle, .cta-btn {
+	forced-color-adjust: none !important;
+	filter: none !important;
 }

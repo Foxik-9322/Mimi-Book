@@ -807,3 +807,9 @@ openBtn.addEventListener('click', function() {
 	book.classList.add('open');
 	this.blur();
 });
+
+window.onload = () => {
+	document.documentElement.style.setProperty('color-scheme', 'light');
+	// Если браузер вставил свои стили, мы их принудительно перебиваем
+	document.body.style.backgroundColor = ""; 
+};

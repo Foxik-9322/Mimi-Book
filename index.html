@@ -4,7 +4,14 @@
 		<link rel="icon" href="favicon2.ico" type="image/x-icon">
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<meta name="color-scheme" content="light only">
+		<meta name="color-scheme" content="only light">
+		<style>
+			/* Вставляем это прямо в HTML для приоритета */
+			:root { color-scheme: light only; }
+			#bookContainer { forced-color-adjust: none; }
+		</style>
+
+		<body style="background-color: #1a1a2e !important;">
 		<meta name="supported-color-schemes" content="light">
 		<meta name="apple-mobile-web-app-status-bar-style" content="default">
 		<title>Mimi-Book</title>

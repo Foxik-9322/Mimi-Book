@@ -24,6 +24,8 @@
 html, body {
 	background-color: #1a1a2e !important; /* Ваш цвет фона из стилей */
 	filter: none !important;
+	-webkit-filter: none !important;
+	forced-color-adjust: none !important;
 }
 
 body {
@@ -903,4 +905,10 @@ button:focus-visible {
 .particle, .cta-btn {
 	forced-color-adjust: none !important;
 	filter: none !important;
+	isolation: isolate;
+}
+
+#bookContainer, .book {
+	color-scheme: light !important;
+	forced-color-adjust: none !important;
 }

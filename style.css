@@ -16,6 +16,7 @@
 	--anim-speed: 1s;
 	--cover-thickness: 10px;
 	--font-main: 'Vag-Round-Cyrillic', serif;
+	-webkit-color-scheme: light;
 }
 
 body {
@@ -889,4 +890,56 @@ button:focus-visible {
 .copyright:hover {
 	color: #d4af37;
 	text-shadow: 0 0 10px #d4af37;
+}
+
+@media (prefers-color-scheme: dark) {
+	/* Возвращаем исходные светлые цвета для всех ключевых элементов */
+	html, body, .top-menu, .side-panel, .bottom-control, .sheet-face,
+	.menu-btn, .panel-item, .cta-btn, .site-footer, .footer-content,
+	.book-container, .scene, .control-inner, .nav-btn-main, .audio-btn-main,
+	.close-btn, .panel-close, .particle, .cover-front, .cover-inside,
+	.hard-cover-back, .poem-page, h1, h2, h3, p, div, span, button {
+		background-color: initial !important;
+		color: initial !important;
+		border-color: initial !important;
+		box-shadow: initial !important;
+		text-shadow: initial !important;
+		-webkit-text-fill-color: initial !important;
+	}
+
+	/* Явно задаём белый фон для страниц книги, так как там используется --page-color */
+	.sheet-face {
+		background-color: #fffbf0 !important;
+		color: #1e1e1e !important;
+	}
+
+	/* Восстанавливаем цвета верхнего меню */
+	.top-menu {
+		background-color: #ffffff !important;
+	}
+	.menu-btn {
+		color: #1e3a5f !important;
+	}
+
+	/* Нижняя панель управления */
+	.bottom-control {
+		background: rgba(26, 26, 46, 0.9) !important; /* если она полупрозрачна, оставляем как есть, но без тёмной инверсии */
+		color: #fffbf0 !important;
+	}
+
+	/* Футер */
+	.footer-content {
+		background: rgba(26, 26, 46, 0.5) !important;
+		color: rgba(191, 160, 69, 0.9) !important;
+	}
+
+	/* Если есть иконки SVG, они могут инвертироваться — закрепляем цвет */
+	.icon-svg, .icon-svg-light, .close-icon, .panel-bookmark-icon {
+		fill: currentColor !important;
+	}
+
+	/* Предотвращаем возможную инверсию изображений */
+	img {
+		filter: none !important;
+	}
 }

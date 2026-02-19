@@ -807,3 +807,7 @@ openBtn.addEventListener('click', function() {
 	book.classList.add('open');
 	this.blur();
 });
+
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+	document.documentElement.style.filter = 'none'; // или принудительно задать светлые стили
+}

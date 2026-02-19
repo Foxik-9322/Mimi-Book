@@ -8,7 +8,7 @@
 }
 
 :root {
-	color-scheme: light;
+	color-scheme: light !important;
 	--book-w: 350px;
 	--book-h: 490px;
 	--cover-color: #1e3a5f;

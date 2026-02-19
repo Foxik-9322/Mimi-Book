@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="icon" href="favicon2.ico" type="image/x-icon">
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Mimi-Book</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div id="particles-container"></div>
+		
+		<header class="top-menu">
+			<div class="menu-left">
+				<button class="menu-btn" onclick="togglePanel('toc')">
+					<svg class="icon-svg" viewBox="0 0 24 24"><path d="M3,9H7V5H3V9M3,14H7V10H3V14M3,19H7V15H3V19M8,9H21V5H8V9M8,14H21V10H8V14M8,19H21V15H8V19Z"/></svg>
+					Contents
+				</button>
+				<button class="menu-btn" onclick="togglePanel('bookmarks')">
+					<svg class="icon-svg" viewBox="0 0 24 24"><path d="M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"/></svg>
+					Bookmarks
+				</button>
+			</div>
+			<div class="menu-center">
+				<img src="favicon2.png" alt="Storyverse Tales" class="menu-logo">
+			</div>
+			<div class="menu-right">
+				<button class="menu-btn" onclick="togglePanel('search')">
+					<svg class="icon-svg" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
+					Search
+				</button>
+				<button class="menu-btn" onclick="togglePanel('settings')">
+					<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.65 15.48,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.52,5.32 7.96,5.65 7.44,6.05L4.95,5.05C4.73,4.97 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.95C7.96,18.35 8.52,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.48,18.68 16.04,18.35 16.56,17.95L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/></svg>
+					Settings
+				</button>
+
+				<div id="closeAction" class="close-action-wrapper">
+					<div class="menu-divider"></div>
+					<button class="menu-btn exit-btn" onclick="closeBook()">
+						<svg class="icon-svg" viewBox="0 0 24 24"><path d="M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z"/></svg>
+						Close
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<aside id="side-panel" class="side-panel">
+			<button class="panel-close" onclick="togglePanel()">
+				<svg viewBox="0 0 24 24" class="close-icon">
+					<rect x="4" y="11" width="16" height="2" rx="1" transform="rotate(45 12 12)" fill="currentColor" />
+					<rect x="11" y="4" width="2" height="16" rx="1" transform="rotate(45 12 12)" fill="currentColor" />
+				</svg>
+			</button>
+			<div id="panel-content"></div>
+		</aside>
+		<div id="panel-overlay" class="panel-overlay" onclick="togglePanel()"></div>
+
+		<main class="scene">
+			<div class="book-container" id="bookContainer">
+				<div class="book" id="book">
+					</div>
+			</div>
+
+			<div class="cta-container" id="cta">
+				<button class="cta-btn" onclick="openBook()">OPEN A BOOK</button>
+			</div>
+		</main>
+
+		<footer class="site-footer">
+			<div class="footer-content">
+				<span class="copyright">© 2026 Mimi-Book</span>
+			</div>
+		</footer>
+
+		<div id="bottomControl" class="bottom-control">
+			<div class="control-inner">
+				<button class="nav-btn-main" onclick="goPrev(event)">
+					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M15.41,16.59L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.59Z"/></svg>
+					Back
+				</button>
+
+				<button class="audio-btn-main" id="mainAudioBtn" onclick="playCurrentAudio()">
+					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/></svg>
+					To listen
+				</button>
+
+				<button class="nav-btn-main" onclick="goNext(event)">
+					Forward
+					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M8.59,16.59L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.59Z"/></svg>
+				</button>
+			</div>
+		</div>
+
+		<script src="poems.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>

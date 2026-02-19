@@ -905,15 +905,3 @@ button:focus-visible {
 	color: #d4af37;
 	text-shadow: 0 0 10px #d4af37;
 }
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		color-scheme: light !important;
-	}
-	body, .side-panel, .bottom-control, .sheet-face, .panel-item, .menu-btn, .footer-content {
-		background-color: initial; /* или явно светлые цвета */
-		color: initial;
-		filter: none !important;
-	}
-	/* При необходимости явно укажите цвета для всех элементов, которые могут измениться */
-}

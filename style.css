@@ -18,6 +18,18 @@
 	--font-main: 'Vag-Round-Cyrillic', serif;
 }
 
+html, body {
+	color-scheme: light !important;
+	forced-color-adjust: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background-color: white !important;
+		color: black !important;
+	}
+}
+
 body {
 	margin: 0;
 	/*background: radial-gradient(circle at center, #2e2e4e, #1a1a2e);*/
@@ -140,13 +152,13 @@ h1, h2, h3, p, button, div {
 	right: -400px;
 	width: 350px;
 	height: 100%;
-	background: rgba(255, 251, 240, 0.95); /* Был темный, стал светлый кремовый */
+	background: rgba(255, 251, 240, 0.95) !important; /* Был темный, стал светлый кремовый */
 	backdrop-filter: blur(10px);
 	z-index: 3000;
 	transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 	padding: 80px 30px 30px;
-	box-shadow: -5px 0 20px rgba(0,0,0,0.1); /* Сделали тень мягче */
-	color: #1e3a5f; /* Текст теперь темно-синий на светлом фоне */
+	box-shadow: -5px 0 20px rgba(0,0,0,0.1) !important; /* Сделали тень мягче */
+	color: #1e3a5f !important; /* Текст теперь темно-синий на светлом фоне */
 	box-sizing: border-box;
 }
 
@@ -220,9 +232,9 @@ h1, h2, h3, p, button, div {
 .search-input {
 	width: 100%;
 	padding: 10px;
-	background: rgba(0,0,0,0.05); /* Светлый фон */
-	border: 1px solid #bfa045;
-	color: #1e3a5f; /* Темный текст */
+	background: rgba(0,0,0,0.05) !important; /* Светлый фон */
+	border: 1px solid #bfa045 !important;
+	color: #1e3a5f !important; /* Темный текст */
 	margin-bottom: 20px;
 }
 
@@ -376,7 +388,7 @@ button:focus-visible {
 	left: 0;
 	width: 100%;
 	height: 80px;
-	background: rgba(255, 255, 255, 0.9); /* Сделали белым с прозрачностью */
+	background: rgba(255, 255, 255, 0.9) !important; /* Сделали белым с прозрачностью */
 	backdrop-filter: blur(15px);
 	border-top: 2px solid #bfa045;
 	z-index: 1000;
@@ -384,7 +396,7 @@ button:focus-visible {
 	justify-content: center;
 	align-items: center;
 	transition: bottom 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-	box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+	box-shadow: 0 -5px 20px rgba(0,0,0,0.1) !important;
 }
 
 .bottom-control.visible {
@@ -401,8 +413,8 @@ button:focus-visible {
 .nav-btn-main,
 .audio-btn-main {
 	background: none;
-	border: 1px solid rgba(30, 58, 95, 0.4); /* Цвет рамки */
-	color: #1e3a5f; /* Цвет текста */
+	border: 1px solid rgba(30, 58, 95, 0.4) !important; /* Цвет рамки */
+	color: #1e3a5f !important; /* Цвет текста */
 	padding: 10px 25px;
 	border-radius: 30px;
 	cursor: pointer;

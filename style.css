@@ -12,7 +12,7 @@
 	--book-w: 350px;
 	--book-h: 490px;
 	--cover-color: #1e3a5f;
-	--page-color: #fffbf0;
+	--page-color: #fffbf0 !important;
 	--anim-speed: 1s;
 	--cover-thickness: 10px;
 	--font-main: 'Vag-Round-Cyrillic', serif;
@@ -327,10 +327,10 @@ input[type="range"] {
 
 .particle {
 	position: absolute;
-	background: rgba(255, 215, 130, 0.9);
+	background: rgba(255, 215, 130, 0.9) !important;
 	border-radius: 50%;
 	pointer-events: none;
-	box-shadow: 0 0 10px 2px rgba(255, 165, 0, 0.6), 0 0 20px 5px rgba(255, 200, 50, 0.3);
+	box-shadow: 0 0 10px 2px rgba(255, 165, 0, 0.6), 0 0 20px 5px rgba(255, 200, 50, 0.3) !important;
 	z-index: 0;
 	transition: opacity 1.5s ease;
 }
@@ -479,7 +479,7 @@ button:focus-visible {
 	box-sizing: border-box;
 	box-shadow: inset 5px 0 10px rgba(0,0,0,0.1);
 	border-radius: 0 10px 10px 0;
-	background: var(--page-color);
+	background: var(--page-color) !important;
 }
 
 .sheet-face.front {
@@ -760,11 +760,11 @@ button:focus-visible {
 .cta-btn {
 	background: none;
 	border: none;
-	color: white;
+	color: white !important;
 	padding: 15px 30px;
 	font-size: 3rem;
 	cursor: pointer;
-	text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+	text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5) !important;
 	animation: pulse 2s infinite ease-in-out;
 	transition: text-shadow 0.3s ease;
 }
@@ -889,11 +889,4 @@ button:focus-visible {
 .copyright:hover {
 	color: #d4af37;
 	text-shadow: 0 0 10px #d4af37;
-}
-
-
-@media (prefers-color-scheme: dark) {
-	.sheet-face {
-		background: var(--page-color) !important;
-	}
 }

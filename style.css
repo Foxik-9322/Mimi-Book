@@ -890,3 +890,10 @@ button:focus-visible {
 	color: #d4af37;
 	text-shadow: 0 0 10px #d4af37;
 }
+
+
+@media (prefers-color-scheme: dark) {
+	.sheet-face {
+		background: var(--page-color) !important;
+	}
+}

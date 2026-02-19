@@ -902,3 +902,13 @@ button:focus-visible {
 	color: #d4af37;
 	text-shadow: 0 0 10px #d4af37;
 }
+
+@media (prefers-color-scheme: dark) {
+	html {
+		filter: none !important;
+	}
+	body {
+		background-color: #f0f0f0 !important;
+		background-image: none !important; /* Убираем фоновую картинку, если она темная */
+	}
+}

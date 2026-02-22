@@ -409,6 +409,7 @@ async function playAudio(pageIndex) {
 	const poem = bookData.poems[pageIndex - 1];
 	
 	if (!poem || !poem.audio) {
+		updateAudioButton(false);
 		showNoAudioModal();
 		return;
 	}
@@ -429,6 +430,13 @@ async function playAudio(pageIndex) {
 	await stopAndHideCurrentAudio();
 
 	const newAudio = new Audio(audioPath);
+	
+	newAudio.onerror = () => {
+		currentAudioPlayer = null;
+		updateAudioButton(false);
+		showNoAudioModal();
+	};
+
 	currentAudioPlayer = newAudio;
 
 	if (slider) {
@@ -444,14 +452,11 @@ async function playAudio(pageIndex) {
 
 	try {
 		await newAudio.play();
-		
 		await showStopButton();
-		
 	} catch (error) {
 		console.error('Playback failed:', error);
 		currentAudioPlayer = null; 
 		updateAudioButton(false);
-		showNoAudioModal();
 	}
 }
 

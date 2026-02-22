@@ -409,12 +409,23 @@ async function playAudio(pageIndex) {
 	const poem = bookData.poems[pageIndex - 1];
 	
 	if (!poem || !poem.audio) {
-		updateAudioButton(false);
 		showNoAudioModal();
 		return;
 	}
 
 	const audioPath = `audio/audio${pageIndex}.m4a`;
+
+	try {
+		const response = await fetch(audioPath, { method: 'HEAD' });
+		if (!response.ok) {
+			showNoAudioModal();
+			return;
+		}
+	} catch (err) {
+		showNoAudioModal();
+		return;
+	}
+
 	const sliderContainer = document.querySelector('.audio-progress-container');
 	const slider = document.getElementById('ttsProgress');
 
@@ -430,19 +441,7 @@ async function playAudio(pageIndex) {
 	await stopAndHideCurrentAudio();
 
 	const newAudio = new Audio(audioPath);
-	
-	newAudio.onerror = () => {
-		currentAudioPlayer = null;
-		updateAudioButton(false);
-		showNoAudioModal();
-	};
-
 	currentAudioPlayer = newAudio;
-
-	if (slider) {
-		slider.value = 0;
-		slider.style.backgroundSize = '0% 100%';
-	}
 
 	newAudio.addEventListener('loadedmetadata', onAudioLoadedMetadata);
 	newAudio.addEventListener('timeupdate', onAudioTimeUpdate);

@@ -406,6 +406,8 @@ function waitForAnimation(element) {
 }
 
 async function playAudio(pageIndex) {
+	updateAudioButton(false);
+
 	const poem = bookData.poems[pageIndex - 1];
 	
 	if (!poem || !poem.audio) {
@@ -416,12 +418,22 @@ async function playAudio(pageIndex) {
 	const audioPath = `audio/audio${pageIndex}.m4a`;
 
 	try {
-		const response = await fetch(audioPath, { method: 'HEAD' });
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+		const response = await fetch(audioPath, { 
+			method: 'HEAD', 
+			signal: controller.signal 
+		});
+		
+		clearTimeout(timeoutId);
+
 		if (!response.ok) {
 			showNoAudioModal();
 			return;
 		}
 	} catch (err) {
+		console.error("Audio check failed:", err);
 		showNoAudioModal();
 		return;
 	}
@@ -457,7 +469,6 @@ async function playAudio(pageIndex) {
 		currentAudioPlayer = null; 
 		updateAudioButton(false);
 	}
-}
 
 function stopCurrentAudio() {
 	if (currentAudioPlayer) {

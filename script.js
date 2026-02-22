@@ -406,38 +406,15 @@ function waitForAnimation(element) {
 }
 
 async function playAudio(pageIndex) {
-	updateAudioButton(false);
-
 	const poem = bookData.poems[pageIndex - 1];
 	
 	if (!poem || !poem.audio) {
+		updateAudioButton(false);
 		showNoAudioModal();
 		return;
 	}
 
 	const audioPath = `audio/audio${pageIndex}.m4a`;
-
-	try {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 2000);
-
-		const response = await fetch(audioPath, { 
-			method: 'HEAD', 
-			signal: controller.signal 
-		});
-		
-		clearTimeout(timeoutId);
-
-		if (!response.ok) {
-			showNoAudioModal();
-			return;
-		}
-	} catch (err) {
-		console.error("Audio check failed:", err);
-		showNoAudioModal();
-		return;
-	}
-
 	const sliderContainer = document.querySelector('.audio-progress-container');
 	const slider = document.getElementById('ttsProgress');
 
@@ -453,7 +430,19 @@ async function playAudio(pageIndex) {
 	await stopAndHideCurrentAudio();
 
 	const newAudio = new Audio(audioPath);
+	
+	newAudio.onerror = () => {
+		currentAudioPlayer = null;
+		updateAudioButton(false);
+		showNoAudioModal();
+	};
+
 	currentAudioPlayer = newAudio;
+
+	if (slider) {
+		slider.value = 0;
+		slider.style.backgroundSize = '0% 100%';
+	}
 
 	newAudio.addEventListener('loadedmetadata', onAudioLoadedMetadata);
 	newAudio.addEventListener('timeupdate', onAudioTimeUpdate);
@@ -469,6 +458,7 @@ async function playAudio(pageIndex) {
 		currentAudioPlayer = null; 
 		updateAudioButton(false);
 	}
+}
 
 function stopCurrentAudio() {
 	if (currentAudioPlayer) {

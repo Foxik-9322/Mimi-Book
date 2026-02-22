@@ -446,16 +446,17 @@ async function playAudio(pageIndex) {
 
 	newAudio.addEventListener('loadedmetadata', onAudioLoadedMetadata);
 	newAudio.addEventListener('timeupdate', onAudioTimeUpdate);
-	newAudio.addEventListener('play', onAudioPlay);
+	// newAudio.addEventListener('play', onAudioPlay);
 	newAudio.addEventListener('pause', onAudioPause);
 	newAudio.addEventListener('ended', onAudioEnded);
 
 	try {
 		await newAudio.play();
+		updateAudioButton(true);
 		await showStopButton();
 	} catch (error) {
 		console.error('Playback failed:', error);
-		currentAudioPlayer = null; 
+		currentAudioPlayer = null;
 		updateAudioButton(false);
 	}
 }

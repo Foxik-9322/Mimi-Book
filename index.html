@@ -3,23 +3,13 @@
 	<head>
 		<link rel="icon" href="favicon2.ico" type="image/x-icon">
 		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<meta name="color-scheme" content="only light">
-		<style>
-			/* Вставляем это прямо в HTML для приоритета */
-			:root { color-scheme: light only; }
-			#bookContainer { forced-color-adjust: none; }
-		</style>
-
-		<body style="background-color: #1a1a2e !important;">
-		<meta name="supported-color-schemes" content="light">
-		<meta name="apple-mobile-web-app-status-bar-style" content="default">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Mimi-Book</title>
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
 		<div id="particles-container"></div>
-
+		
 		<header class="top-menu">
 			<div class="menu-left">
 				<button class="menu-btn" onclick="togglePanel('toc')">
@@ -83,21 +73,76 @@
 		</footer>
 
 		<div id="bottomControl" class="bottom-control">
+			<div class="audio-progress-container" id="audioProgressContainer">
+				<div style="display: flex; align-items: center; gap: 10px;">
+					<input type="range" id="ttsProgress" min="0" max="100" value="0" oninput="seekTTS(this.value)">
+					<div class="audio-time" id="audioTime">00:00 / 00:00</div>
+				</div>
+			</div>
+
 			<div class="control-inner">
 				<button class="nav-btn-main" onclick="goPrev(event)">
 					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M15.41,16.59L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.59Z"/></svg>
 					Back
 				</button>
-
-				<button class="audio-btn-main" id="mainAudioBtn" onclick="playCurrentAudio()">
-					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/></svg>
-					To listen
+				
+				<button class="audio-btn-main" onclick="playCurrentAudio()">
+					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>
+					Listen
 				</button>
 
 				<button class="nav-btn-main" onclick="goNext(event)">
 					Forward
 					<svg class="icon-svg-light" viewBox="0 0 24 24"><path d="M8.59,16.59L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.59Z"/></svg>
 				</button>
+			</div>
+		</div>
+
+		<button class="kb-hint-trigger" onclick="toggleKeyboardModal()">
+			<svg viewBox="0 0 24 24"><path d="M19,10H17V7H19M19,15H17V12H19M14,10H10V7H14M14,15H10V12H14M7,10H5V7H7M7,15H5V12H7M20,2H4C2.89,2 2,2.89 2,4V20A2,2 0 0,0 4,22H20A2,2 0 0,0 22,20V4C22,2.89 21.1,2 20,2M20,20H4V4H20V20Z"/></svg>
+		</button>
+
+		<div id="kb-modal-overlay" class="kb-modal-overlay" onclick="toggleKeyboardModal()">
+			<div class="kb-modal-content" onclick="event.stopPropagation()">
+				<button class="panel-close" onclick="toggleKeyboardModal()">
+					<svg viewBox="0 0 24 24" class="close-icon">
+						<rect x="4" y="11" width="16" height="2" rx="1" transform="rotate(45 12 12)" fill="currentColor" />
+						<rect x="11" y="4" width="2" height="16" rx="1" transform="rotate(45 12 12)" fill="currentColor" />
+					</svg>
+				</button>
+				<h2>Keyboard Controls</h2>
+				<div class="kb-grid">
+					<div class="kb-item">
+						<span class="key">Space</span>
+						<span class="desc">Open / Close the Book</span>
+					</div>
+					<div class="kb-item">
+						<span class="key">1 – 4</span>
+						<span class="desc">Menu: Contents, Bookmarks, Search, Settings</span>
+					</div>
+					<div class="kb-item">
+						<span class="key">5</span>
+						<span class="desc">Help window</span>
+					</div>
+					<div class="kb-item">
+						<div class="key-group">
+							<span class="key">⬅</span>
+							<span class="key">⮕</span>
+						</div>
+						<span class="desc">Flip pages back and forward</span>
+					</div>
+					<div class="kb-item">
+						<div class="key-group">
+							<span class="key">⬆</span>
+							<span class="key">⬇</span>
+						</div>
+						<span class="desc">Play and Pause / Stop audio</span>
+					</div>
+					<div class="kb-item">
+						<span class="key">Esc</span>
+						<span class="desc">Close all active panels</span>
+					</div>
+				</div>
 			</div>
 		</div>
 

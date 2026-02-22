@@ -594,6 +594,7 @@ function updateStopButtonVisibility() {
 window.addEventListener('load', addStopButton);
 
 function showNoAudioModal() {
+	updateAudioButton(false);
 	const old = document.getElementById('audio-modal');
 	if(old) old.remove();
 

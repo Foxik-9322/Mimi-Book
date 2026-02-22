@@ -496,7 +496,7 @@ function addStopButton() {
 
 	const stopBtn = document.createElement('button');
 	stopBtn.className = 'audio-stop-btn';
-	stopBtn.innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill:currentColor"><path d="M4,4H20V20H4V4Z"/></svg> Stop`;
+	stopBtn.innerHTML = `<svg viewBox="0 0 24 24" width="24" height="24" style="fill:currentColor"><path d="M4,4H20V20H4V4Z"/></svg> Stop`;
 	
 	stopBtn.addEventListener('click', (e) => {
 		e.stopPropagation();

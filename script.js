@@ -144,7 +144,7 @@ function initBook() {
 				front.innerHTML = `
 					<div class="image-placeholder">
 						<img src="image/image${realImgIdx}.webp" 
-							onerror="this.onerror=null; this.parentElement.style.backgroundColor='#FFA500'; this.parentElement.style.fontSize='1.5rem'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='Mimi-Book Img ${realImgIdx}';" 
+							onerror="this.onerror=null; this.parentElement.style.backgroundColor='#FFA500'; this.parentElement.style.color='#FFFBF0'; this.parentElement.style.fontSize='1.5rem'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='Mimi-Book Img ${realImgIdx}';" 
 							alt="Image ${realImgIdx}">
 					</div>
 				`;
@@ -209,6 +209,7 @@ function openBook() {
 			updatePageCounter();
 			fitCurrentPage();
 			isAnimating = false;
+			updateKbHintPosition();
 		}, 800);
 	}, 600);
 }
@@ -217,11 +218,15 @@ function closeBook() {
 	if (isAnimating) return;
 	isAnimating = true;
 
+	stopCurrentAudio();
+
 	const sheets = document.querySelectorAll('.sheet');
 	sheets.forEach(s => s.classList.remove('flipped'));
 
 	closeAction.classList.remove('active');
 	bottomControl.classList.remove('visible');
+	
+	updateKbHintPosition();
 
 	currentSheetIndex = 0;
 	setTimeout(() => {
@@ -238,10 +243,8 @@ function updatePageCounter() {
 }
 
 function goNext(event) {
-	if (currentAudioPlayer) {
-		currentAudioPlayer.pause();
-		currentAudioPlayer = null;
-	}
+	stopCurrentAudio();
+	
 	if (event) event.stopPropagation();
 	if (currentSheetIndex < totalSheets - 1) {
 		currentSheetIndex++;
@@ -254,10 +257,8 @@ function goNext(event) {
 }
 
 function goPrev(event) {
-	if (currentAudioPlayer) {
-		currentAudioPlayer.pause();
-		currentAudioPlayer = null;
-	}
+	stopCurrentAudio();
+
 	if (event) event.stopPropagation();
 	if (currentSheetIndex > 0) {
 		unflipSheet(currentSheetIndex);
@@ -286,25 +287,308 @@ function unflipSheet(index) {
 }
 
 let currentAudioPlayer = null;
-function playAudio(pageIndex) {
+
+const audioIcons = {
+	play: `<svg viewBox="0 0 24 24"><path d="M8,5.14V19.14L19,12.14L8,5.14Z"/></svg>`,
+	pause: `<svg viewBox="0 0 24 24"><path d="M14,19H18V5H14M6,19H10V5H6V19Z"/></svg>`
+};
+
+function formatTime(seconds) {
+	if (isNaN(seconds) || !isFinite(seconds)) return "00:00";
+	const mins = Math.floor(seconds / 60);
+	const secs = Math.floor(seconds % 60);
+	return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updateAudioTimeDisplay() {
+	const timeSpan = document.getElementById('audioTime');
+	if (!timeSpan) return;
+	if (currentAudioPlayer && currentAudioPlayer.duration) {
+		const current = formatTime(currentAudioPlayer.currentTime);
+		const total = formatTime(currentAudioPlayer.duration);
+		timeSpan.textContent = `${current} / ${total}`;
+	} else {
+		timeSpan.textContent = "00:00 / 00:00";
+	}
+}
+
+function updateAudioButton(isPlaying) {
+	const btn = document.querySelector('.audio-btn-main');
+	if (!btn) return;
+	if (isPlaying) {
+		btn.innerHTML = `${audioIcons.pause} Pause`;
+		btn.classList.add('playing');
+	} else {
+		btn.innerHTML = `${audioIcons.play} Listen`;
+		btn.classList.remove('playing');
+	}
+}
+
+function onAudioLoadedMetadata(event) {
+	const audio = event.target;
+	if (audio !== currentAudioPlayer) return;
+	const sliderContainer = document.querySelector('.audio-progress-container');
+	const slider = document.getElementById('ttsProgress');
+	if (!sliderContainer || !slider) return;
+	sliderContainer.classList.add('active');
+	slider.max = audio.duration;
+	slider.step = 0.01;
+	updateAudioTimeDisplay();
+	updateKbHintPosition();
+}
+
+function onAudioDurationChange(event) {
+	const audio = event.target;
+	if (audio !== currentAudioPlayer) return;
+	const slider = document.getElementById('ttsProgress');
+	if (slider) {
+		slider.max = audio.duration;
+	}
+	updateAudioTimeDisplay();
+}
+
+function onAudioTimeUpdate(event) {
+	const audio = event.target;
+	if (audio !== currentAudioPlayer) return;
+	const slider = document.getElementById('ttsProgress');
+	if (!slider || !audio.duration) return;
+
+	slider.max = audio.duration;
+	slider.value = audio.currentTime;
+
+	const pct = (audio.currentTime / audio.duration) * 100;
+	slider.style.backgroundSize = pct + '% 100%';
+	updateAudioTimeDisplay();
+}
+
+function onAudioPlay(event) {
+	if (event.target !== currentAudioPlayer) return;
+	updateAudioButton(true);
+}
+
+function onAudioPause(event) {
+	if (event.target !== currentAudioPlayer) return;
+	updateAudioButton(false);
+}
+
+function onAudioEnded(event) {
+	if (event.target !== currentAudioPlayer) return;
+	updateAudioButton(false);
+	const slider = document.getElementById('ttsProgress');
+	if (slider) {
+		slider.value = 0;
+		slider.style.backgroundSize = '0% 100%';
+	}
+	updateAudioTimeDisplay();
+	const sliderContainer = document.querySelector('.audio-progress-container');
+	if (sliderContainer) sliderContainer.classList.remove('active');
+	updateKbHintPosition();
+
+	currentAudioPlayer = null;
+	updateStopButtonVisibility();
+}
+
+function waitForAnimation(element) {
+	return new Promise((resolve) => {
+		if (!element) return resolve();
+		
+		const onFinish = () => {
+			element.removeEventListener('transitionend', onFinish);
+			element.removeEventListener('animationend', onFinish);
+			resolve();
+		};
+		
+		element.addEventListener('transitionend', onFinish);
+		element.addEventListener('animationend', onFinish);
+		
+		setTimeout(resolve, 500);
+	});
+}
+
+async function playAudio(pageIndex) {
+	const poem = bookData.poems[pageIndex - 1];
+	if (!poem || !poem.audio) {
+		showNoAudioModal();
+		return;
+	}
+
+	const audioPath = `audio/audio${pageIndex}.m4a`;
+	const sliderContainer = document.querySelector('.audio-progress-container');
+	const slider = document.getElementById('ttsProgress');
+
+	if (currentAudioPlayer && currentAudioPlayer.src.includes(audioPath)) {
+		sliderContainer.classList.add('active');
+		if (currentAudioPlayer.paused) {
+			await currentAudioPlayer.play();
+		} else {
+			currentAudioPlayer.pause();
+		}
+		return;
+	}
+
+	await stopAndHideCurrentAudio();
+
+	const newAudio = new Audio(audioPath);
+	currentAudioPlayer = newAudio;
+
+	updateAudioTimeDisplay();
+	if (slider) {
+		slider.value = 0;
+		slider.style.backgroundSize = '0% 100%';
+	}
+	if (sliderContainer) sliderContainer.classList.remove('active');
+
+	newAudio.addEventListener('loadedmetadata', onAudioLoadedMetadata);
+	newAudio.addEventListener('durationchange', onAudioDurationChange);
+	newAudio.addEventListener('timeupdate', onAudioTimeUpdate);
+	newAudio.addEventListener('play', onAudioPlay);
+	newAudio.addEventListener('pause', onAudioPause);
+	newAudio.addEventListener('ended', onAudioEnded);
+
+	await showStopButton();
+
+	try {
+		await newAudio.play();
+	} catch (error) {
+		console.error('Audio play error:', error);
+		await hideStopButton();
+		showNoAudioModal();
+		currentAudioPlayer = null;
+	}
+}
+
+function stopCurrentAudio() {
 	if (currentAudioPlayer) {
 		currentAudioPlayer.pause();
+		currentAudioPlayer.currentTime = 0;
 	}
-	
-	const audioNum = pageIndex;
-	const audioPath = `audio/audio${audioNum}.aac`;
-	
-	const audio = new Audio(audioPath);
-	currentAudioPlayer = audio;
-	
-	audio.play().catch(err => {
-		showNoAudioModal();
-	});
-	
-	audio.onerror = () => {
-		showNoAudioModal();
-	};
+	const slider = document.getElementById('ttsProgress');
+	if (slider) {
+		slider.value = 0;
+		slider.style.backgroundSize = '0% 100%';
+	}
+	const sliderContainer = document.querySelector('.audio-progress-container');
+	if (sliderContainer) sliderContainer.classList.remove('active');
+	updateAudioTimeDisplay();
+	updateAudioButton(false);
+	updateKbHintPosition();
+
+	currentAudioPlayer = null;
+	updateStopButtonVisibility();
 }
+
+function playCurrentAudio() {
+	if (currentSheetIndex === 0 || currentSheetIndex === totalSheets - 1) {
+		showAudioModal();
+		return;
+	}
+	playAudio(currentSheetIndex);
+}
+
+function seekTTS(value) {
+	if (currentAudioPlayer) {
+		currentAudioPlayer.currentTime = value;
+		updateAudioTimeDisplay();
+	}
+}
+
+function addStopButton() {
+	const bottomCtrl = document.getElementById('bottomControl');
+	if (!bottomCtrl || bottomCtrl.querySelector('.audio-stop-btn')) return;
+
+	const stopBtn = document.createElement('button');
+	stopBtn.className = 'audio-stop-btn';
+	stopBtn.innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" style="fill:currentColor"><path d="M4,4H20V20H4V4Z"/></svg> Stop`;
+	
+	stopBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		stopCurrentAudio();
+	});
+
+	const audioBtn = bottomCtrl.querySelector('.audio-btn-main');
+	if (audioBtn) {
+		audioBtn.insertAdjacentElement('afterend', stopBtn);
+	}
+}
+
+function waitForTransition(element) {
+	return new Promise(resolve => {
+		if (!element) return resolve();
+		const onTransitionEnd = (e) => {
+			if (e.target === element) {
+				element.removeEventListener('transitionend', onTransitionEnd);
+				resolve();
+			}
+		};
+		element.addEventListener('transitionend', onTransitionEnd);
+		setTimeout(resolve, 500);
+	});
+}
+
+async function showStopButton() {
+	const stopBtn = document.querySelector('.audio-stop-btn');
+	if (!stopBtn) return;
+	if (stopBtn.classList.contains('visible')) return;
+	
+	stopBtn.classList.add('visible');
+	await waitForAnimation(stopBtn);
+}
+
+async function hideStopButton() {
+	const stopBtn = document.querySelector('.audio-stop-btn');
+	if (!stopBtn) return;
+	if (!stopBtn.classList.contains('visible')) return;
+	stopBtn.classList.remove('visible');
+	await waitForAnimation(stopBtn);
+}
+
+async function stopAndHideCurrentAudio() {
+	if (!currentAudioPlayer) return;
+
+	currentAudioPlayer.pause();
+	currentAudioPlayer.currentTime = 0;
+
+	await hideStopButton();
+
+	const slider = document.getElementById('ttsProgress');
+	if (slider) {
+		slider.value = 0;
+		slider.style.backgroundSize = '0% 100%';
+	}
+	const sliderContainer = document.querySelector('.audio-progress-container');
+	if (sliderContainer) sliderContainer.classList.remove('active');
+	updateAudioTimeDisplay();
+	updateAudioButton(false);
+
+	currentAudioPlayer = null;
+}
+
+async function onAudioEnded(event) {
+	if (event.target !== currentAudioPlayer) return;
+	updateAudioButton(false);
+	const slider = document.getElementById('ttsProgress');
+	if (slider) {
+		slider.value = 0;
+		slider.style.backgroundSize = '0% 100%';
+	}
+	updateAudioTimeDisplay();
+	const sliderContainer = document.querySelector('.audio-progress-container');
+	if (sliderContainer) sliderContainer.classList.remove('active');
+	updateKbHintPosition();
+	await hideStopButton();
+	currentAudioPlayer = null;
+}
+
+function updateStopButtonVisibility() {
+	const stopBtn = document.querySelector('.audio-stop-btn');
+	if (currentAudioPlayer) {
+		stopBtn.classList.add('visible');
+	} else {
+		stopBtn.classList.remove('visible');
+	}
+}
+
+window.addEventListener('load', addStopButton);
 
 function showNoAudioModal() {
 	const old = document.getElementById('audio-modal');
@@ -331,15 +615,6 @@ function showAudioModal() {
 		</div>
 	`;
 	document.body.appendChild(modal);
-}
-
-function playCurrentAudio() {
-	if (currentSheetIndex === 0 || currentSheetIndex === totalSheets - 1) {
-		showAudioModal();
-		return;
-	}
-
-	playAudio(currentSheetIndex);
 }
 
 let bookmarks = JSON.parse(localStorage.getItem('story_bookmarks')) || [];
@@ -566,10 +841,44 @@ function doSearch(query) {
 	).join('');
 }
 
+function toggleKeyboardModal() {
+	const modal = document.getElementById('kb-modal-overlay');
+	if (modal) {
+		modal.classList.toggle('active');
+	}
+}
+
 document.addEventListener('keydown', function (event) {
 	if (event.ctrlKey && (event.key === '+' || event.key === '-' || event.key === '=' || event.keyCode === 107 || event.keyCode === 109)) {
 		event.preventDefault();
 		return;
+	}
+
+	if (event.code === 'Digit5') {
+		const panel = document.getElementById('side-panel');
+		if (panel && panel.classList.contains('active')) {
+			togglePanel();
+		}
+		toggleKeyboardModal();
+		return;
+	}
+
+	const kbModal = document.getElementById('kb-modal-overlay');
+	const isKbModalActive = kbModal && (kbModal.classList.contains('active') || kbModal.style.display === 'flex');
+	
+	if (isKbModalActive) {
+		if (event.key === 'Escape') {
+			toggleKeyboardModal();
+			return;
+		}
+		
+		if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(event.code)) {
+			toggleKeyboardModal();
+		} else {
+			event.preventDefault();
+			event.stopPropagation();
+			return;
+		}
 	}
 
 	const panel = document.getElementById('side-panel');
@@ -603,7 +912,7 @@ document.addEventListener('keydown', function (event) {
 		if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
 			event.preventDefault();
 			
-			if (currentFocusIndex >= 0 && focusableItems[currentFocusIndex]) {
+			if (typeof currentFocusIndex !== 'undefined' && currentFocusIndex >= 0 && focusableItems[currentFocusIndex]) {
 				focusableItems[currentFocusIndex].classList.remove('keyboard-focus');
 			}
 
@@ -671,25 +980,9 @@ document.addEventListener('keydown', function (event) {
 	const isOpen = bookContainer.classList.contains('open');
 
 	switch (event.code) {
-		case 'Digit1':
-			togglePanel('toc');
-			break;
-
-		case 'Digit2':
-			togglePanel('bookmarks');
-			break;
-
-		case 'Digit3':
-			togglePanel('settings');
-			break;
-
-		case 'Digit4':
-			togglePanel('search');
-			break;
-
 		case 'Space':
 			event.preventDefault();
-			if (isAnimating) break;
+			if (typeof isAnimating !== 'undefined' && isAnimating) break;
 			if (!isOpen) openBook();
 			else closeBook();
 			break;
@@ -703,7 +996,17 @@ document.addEventListener('keydown', function (event) {
 			break;
 
 		case 'ArrowUp':
-			if (isOpen) playCurrentAudio();
+			if (isOpen) {
+				event.preventDefault();
+				if (typeof playCurrentAudio === 'function') playCurrentAudio();
+			}
+			break;
+
+		case 'ArrowDown':
+			if (isOpen) {
+				event.preventDefault();
+				if (typeof stopCurrentAudio === 'function') stopCurrentAudio();
+			}
 			break;
 
 		case 'Escape':
@@ -803,34 +1106,34 @@ function createParticles(count = 180) {
 
 window.addEventListener('load', () => createParticles(150));
 
-openBtn.addEventListener('click', function() {
-	book.classList.add('open');
-	this.blur();
-});
+const openBtn = document.querySelector('.cta-btn');
+if (openBtn) {
+	openBtn.addEventListener('click', function() {
+		if (book) book.classList.add('open');
+		this.blur();
+	});
+}
 
-window.onload = () => {
-	document.documentElement.style.setProperty('color-scheme', 'light');
-	// Если браузер вставил свои стили, мы их принудительно перебиваем
-	document.body.style.backgroundColor = ""; 
-};
+function updateKbHintPosition() {
+	const trigger = document.querySelector('.kb-hint-trigger');
+	const bottomCtrl = document.getElementById('bottomControl');
+	if (!trigger || !bottomCtrl) return;
 
-function protectFromDarkMode() {
-	const isDarkModeActive = window.matchMedia('(prefers-color-scheme: dark)').matches;
-	
-	// Проверяем, не пытается ли браузер принудительно инвертировать цвета
-	// Этот хак определяет "Force Dark Mode" в некоторых браузерах
-	const testDiv = document.createElement('div');
-	testDiv.style.color = 'rgb(255, 255, 255)';
-	testDiv.style.display = 'none';
-	document.body.appendChild(testDiv);
-	const computedColor = getComputedStyle(testDiv).color;
-	document.body.removeChild(testDiv);
-
-	if (computedColor !== 'rgb(255, 255, 255)') {
-		// Если белый стал не белым — значит работает принудительная инверсия.
-		// Применяем обратный фильтр к книге, чтобы вернуть ей цвета.
-		document.getElementById('bookContainer').style.filter = 'invert(1) hue-rotate(180deg)';
+	const isVisible = bottomCtrl.classList.contains('visible');
+	if (!isVisible) {
+		trigger.style.bottom = '20px';
+	} else {
+		const ctrlHeight = bottomCtrl.offsetHeight;
+		trigger.style.bottom = (ctrlHeight + 10) + 'px';
 	}
 }
 
-window.addEventListener('DOMContentLoaded', protectFromDarkMode);
+if (bottomControl) {
+	const resizeObserver = new ResizeObserver(() => {
+		updateKbHintPosition();
+	});
+	resizeObserver.observe(bottomControl);
+}
+
+window.addEventListener('load', updateKbHintPosition);
+window.addEventListener('resize', updateKbHintPosition);

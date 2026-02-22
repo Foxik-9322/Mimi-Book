@@ -1137,3 +1137,30 @@ if (bottomControl) {
 
 window.addEventListener('load', updateKbHintPosition);
 window.addEventListener('resize', updateKbHintPosition);
+
+window.onload = () => {
+	document.documentElement.style.setProperty('color-scheme', 'light');
+	// Если браузер вставил свои стили, мы их принудительно перебиваем
+	document.body.style.backgroundColor = ""; 
+};
+
+function protectFromDarkMode() {
+	const isDarkModeActive = window.matchMedia('(prefers-color-scheme: dark)').matches;
+	
+	// Проверяем, не пытается ли браузер принудительно инвертировать цвета
+	// Этот хак определяет "Force Dark Mode" в некоторых браузерах
+	const testDiv = document.createElement('div');
+	testDiv.style.color = 'rgb(255, 255, 255)';
+	testDiv.style.display = 'none';
+	document.body.appendChild(testDiv);
+	const computedColor = getComputedStyle(testDiv).color;
+	document.body.removeChild(testDiv);
+
+	if (computedColor !== 'rgb(255, 255, 255)') {
+		// Если белый стал не белым — значит работает принудительная инверсия.
+		// Применяем обратный фильтр к книге, чтобы вернуть ей цвета.
+		document.getElementById('bookContainer').style.filter = 'invert(1) hue-rotate(180deg)';
+	}
+}
+
+window.addEventListener('DOMContentLoaded', protectFromDarkMode);

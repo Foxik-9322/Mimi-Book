@@ -407,6 +407,7 @@ function waitForAnimation(element) {
 
 async function playAudio(pageIndex) {
 	const poem = bookData.poems[pageIndex - 1];
+	
 	if (!poem || !poem.audio) {
 		showNoAudioModal();
 		return;
@@ -417,7 +418,6 @@ async function playAudio(pageIndex) {
 	const slider = document.getElementById('ttsProgress');
 
 	if (currentAudioPlayer && currentAudioPlayer.src.includes(audioPath)) {
-		sliderContainer.classList.add('active');
 		if (currentAudioPlayer.paused) {
 			await currentAudioPlayer.play();
 		} else {
@@ -431,29 +431,27 @@ async function playAudio(pageIndex) {
 	const newAudio = new Audio(audioPath);
 	currentAudioPlayer = newAudio;
 
-	updateAudioTimeDisplay();
 	if (slider) {
 		slider.value = 0;
 		slider.style.backgroundSize = '0% 100%';
 	}
-	if (sliderContainer) sliderContainer.classList.remove('active');
 
 	newAudio.addEventListener('loadedmetadata', onAudioLoadedMetadata);
-	newAudio.addEventListener('durationchange', onAudioDurationChange);
 	newAudio.addEventListener('timeupdate', onAudioTimeUpdate);
 	newAudio.addEventListener('play', onAudioPlay);
 	newAudio.addEventListener('pause', onAudioPause);
 	newAudio.addEventListener('ended', onAudioEnded);
 
-	await showStopButton();
-
 	try {
 		await newAudio.play();
+		
+		await showStopButton();
+		
 	} catch (error) {
-		console.error('Audio play error:', error);
-		await hideStopButton();
+		console.error('Playback failed:', error);
+		currentAudioPlayer = null; 
+		updateAudioButton(false);
 		showNoAudioModal();
-		currentAudioPlayer = null;
 	}
 }
 
@@ -1140,15 +1138,12 @@ window.addEventListener('resize', updateKbHintPosition);
 
 window.onload = () => {
 	document.documentElement.style.setProperty('color-scheme', 'light');
-	// Если браузер вставил свои стили, мы их принудительно перебиваем
 	document.body.style.backgroundColor = ""; 
 };
 
 function protectFromDarkMode() {
 	const isDarkModeActive = window.matchMedia('(prefers-color-scheme: dark)').matches;
 	
-	// Проверяем, не пытается ли браузер принудительно инвертировать цвета
-	// Этот хак определяет "Force Dark Mode" в некоторых браузерах
 	const testDiv = document.createElement('div');
 	testDiv.style.color = 'rgb(255, 255, 255)';
 	testDiv.style.display = 'none';
@@ -1157,8 +1152,6 @@ function protectFromDarkMode() {
 	document.body.removeChild(testDiv);
 
 	if (computedColor !== 'rgb(255, 255, 255)') {
-		// Если белый стал не белым — значит работает принудительная инверсия.
-		// Применяем обратный фильтр к книге, чтобы вернуть ей цвета.
 		document.getElementById('bookContainer').style.filter = 'invert(1) hue-rotate(180deg)';
 	}
 }
